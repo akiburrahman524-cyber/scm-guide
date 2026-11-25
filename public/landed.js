@@ -10,6 +10,11 @@ const DEST = {
   MY: { name: 'Malaysia', note: 'Sales tax is charged on (CIF + import duty + excise). Standard 10%, reduced 5% for listed goods, some goods specific rates (source: Malaysia Customs MySST / DHL Malaysia guide, May 2026). Import duty % depends on HS code: look it up on the Malaysia Customs tariff finder. Goods valued RM500 or less sold online from overseas fall under the low-value goods sales tax, check with Customs.', vatLabel: 'Sales tax (SST)', vat: 10, taxes: [] },
   BD: { name: 'Bangladesh', note: 'Four main import levels: Customs Duty (CD), Regulatory Duty (RD), Supplementary Duty (SD), VAT 15%. Advance Income Tax 5% is also charged (source: trade.gov Bangladesh Import Tariffs, published 2026-03-19; NBR VAT FAQ). The cascade order used here (CD and RD on value, SD on value+CD+RD, VAT on value+CD+RD+SD) is the commonly used method. Confirm rates per HS code on the Bangladesh Customs tariff and with your C&F agent. Advance Trade VAT and other levies are not verified here, so add them as extra lines if they apply.', vatLabel: 'VAT', vat: 15, taxes: [] },
   EU: { name: 'European Union', note: 'VAT is charged on (customs value + duty + costs up to the first EU destination). Standard VAT rates shown are as of Jan 2026 and can change; reduced rates may apply to some goods. Since 1 July 2026 the EUR 150 duty exemption is gone: a EUR 3 duty per item applies to low-value B2C parcels, and a EUR 2 Union handling fee per item applies from 1 Nov 2026 (source: business.gov.uk EU UCC reforms page). Duty % otherwise follows the EU TARIC for the HS code. Special origin rules and trade agreements are not applied.', vatLabel: 'VAT', vat: 19, taxes: [] },
+  GB: { name: 'United Kingdom', note: 'Import VAT (standard rate 20%, source gov.uk/vat-rates) is charged on the customs value plus incidental costs up to the first UK destination, plus duty and other import charges (source: gov.uk guidance on VAT on imports). Duty % follows the UK Global Tariff for the HS code. Preferential origin and trade agreements are not applied.', vatLabel: 'Import VAT', vat: 20, taxes: [] },
+  SG: { name: 'Singapore', note: 'GST 9% is charged on customs value plus duties (source: IRAS import GST page, Singapore Customs GST page). Most goods carry no duty; dutiable goods are liquors, tobacco, motor vehicles and petroleum products. GST relief or exemptions can apply, check the schemes.', vatLabel: 'GST', vat: 9, taxes: [] },
+  AE: { name: 'United Arab Emirates', note: 'UAE customs tariff is mostly 5% of CIF value, with 50% on alcohol and 100% on tobacco (source: u.ae official portal). VAT is 5% (source: PwC tax summaries, reviewed Sept 2026). VAT here is applied on CIF + duty, which is the usual method but confirm with Customs. GCC and free-zone rules differ.', vatLabel: 'VAT', vat: 5, taxes: [] },
+  IN: { name: 'India', note: 'Duty stack: Basic Customs Duty (BCD) on assessable value (CIF), Social Welfare Surcharge (SWS, set by Finance Act 2018 s.110 at 10%, normally applied on BCD, confirm for your goods), then IGST on (value + BCD + SWS) (source: CBIC guidance note on GST for importers). IGST rate depends on the item and changed in the 2025 reform, so enter the rate from the CBIC tariff. Cess, anti-dumping and safeguard duties are not included.', vatLabel: 'IGST', vat: 18, taxes: [] },
+  US: { name: 'United States', note: 'No federal VAT. Duty follows the HTS for the HS code and origin; extra tariffs (for example Section 301 or other measures) can apply by origin and change often, so add them in the extra duty field. Customs value is generally the transaction value without international freight and insurance, so freight is left out of the duty base here (confirm with your broker). Merchandise Processing Fee: 0.3464% of value, minimum $34.58, maximum $670.86 for formal entries, and Harbor Maintenance Fee 0.125% for sea imports (source: CBP user fee table, fees effective 1 Oct 2025). Informal entries and other cases differ.', vatLabel: 'Sales/state tax (usually 0 at import)', vat: 0, taxes: [] },
   XX: { name: 'Other country', note: 'Enter your own duty and VAT or GST rates from the destination customs authority.', vatLabel: 'VAT / GST', vat: 0, taxes: [] },
 };
 const num = (v) => { const n = parseFloat(v); return Number.isFinite(n) ? n : 0; };
@@ -47,18 +52,26 @@ function buildLines(s) {
   add('ins', 'Cargo insurance', t.i === 'b' ? insBase * num(s.insPct) / 100 : 0, t.i === 'b' ? `${num(s.insPct)}% of goods + freight (your rate)` : 'Included under ' + s.incoterm, 'ship');
   const cv = L.slice(0, 4).reduce((a, x) => a + x.amount, 0);
   add('cv', 'Customs value (CIF basis, subtotal)', cv, 'Goods + origin + freight + insurance that you pay. Some countries value differently, check the rule.', 'sub');
-  const duty = cv * num(s.duty) / 100; let rd = 0, sd = 0, other = 0; let vatBase = cv + duty; const extra = [];
+  const usCv = L[0].amount + L[1].amount; // US: goods + origin charges, without international freight and insurance
+  const dutyBase = s.dest === 'US' ? usCv : cv;
+  const duty = dutyBase * num(s.duty) / 100; let rd = 0, sd = 0, other = 0; let vatBase = cv + duty; const extra = [];
   if (s.dest === 'BD') { rd = cv * num(s.rd) / 100; sd = (cv + duty + rd) * num(s.sd) / 100; vatBase = cv + duty + rd + sd; }
-  add('duty', 'Import / customs duty', duty, `${num(s.duty)}% of customs value (rate by HS code)`, 'tax');
+  add('duty', 'Import / customs duty', duty, `${num(s.duty)}% of ${s.dest === 'US' ? 'goods value (no intl freight/insurance)' : 'customs value'} (rate by HS code)`, 'tax');
   if (s.dest === 'BD') { add('rd', 'Regulatory duty (RD)', rd, `${num(s.rd)}% of customs value`, 'tax'); add('sd', 'Supplementary duty (SD)', sd, `${num(s.sd)}% of (value + CD + RD)`, 'tax'); }
   if (s.dest === 'MY') { const ex = cv * num(s.excise) / 100; add('excise', 'Excise duty', ex, `${num(s.excise)}% of customs value (usually 0 unless excisable goods)`, 'tax'); vatBase = cv + duty + ex; }
+  if (s.dest === 'IN') { const sws = duty * num(s.sws) / 100; add('sws', 'Social Welfare Surcharge (SWS)', sws, `${num(s.sws)}% of BCD`, 'tax'); vatBase = cv + duty + sws; }
+  if (s.dest === 'US') {
+    const mpf = Math.min(Math.max(usCv * 0.003464, 34.58), 670.86); add('mpf', 'Merchandise Processing Fee (formal entry)', usCv > 0 ? mpf : 0, '0.3464% of value, min $34.58, max $670.86 (USD, FY2026)', 'tax');
+    const hmf = (s.mode === 'sea-fcl' || s.mode === 'sea-lcl') ? usCv * 0.00125 : 0; add('hmf', 'Harbor Maintenance Fee (sea)', hmf, '0.125% of value, sea imports only', 'tax');
+    add('xduty', 'Additional tariffs (by origin, enter your rate)', usCv * num(s.xduty) / 100, `${num(s.xduty)}% of goods value`, 'tax'); vatBase = 0;
+  }
   if (s.dest === 'EU') { const perItem = s.euLow === 'yes' ? 3 * num(s.items) : 0; add('eu3', 'EU EUR 3 duty per item (low-value parcels)', perItem, 'Only for B2C parcels up to EUR 150 per item, in EUR', 'tax'); const uhf = s.euLow === 'yes' ? 2 * num(s.items) : 0; add('uhf', 'EU Union handling fee EUR 2 per item', uhf, 'From 1 Nov 2026, in EUR', 'tax'); }
   const clearance = num(s.thc) + num(s.broker) + num(s.dutyOther);
   add('thc', 'Port / terminal handling and D/O fees at destination', num(s.thc), 'Your estimate', 'dest');
   add('broker', 'Customs broker / clearance agent fee', num(s.broker), 'Your estimate', 'dest');
   add('inland', 'Inland delivery to your address', num(s.inland), 'Your estimate', 'dest');
-  if (s.dest === 'EU') vatBase += num(s.inland);
-  add('vat', `${d.vatLabel} (${num(s.vat)}%)`, vatBase * num(s.vat) / 100, `${num(s.vat)}% of ${money(vatBase)}`, 'tax');
+  if (s.dest === 'EU' || s.dest === 'GB') vatBase += num(s.inland);
+  if (s.dest !== 'US' || num(s.vat) > 0) add('vat', `${d.vatLabel} (${num(s.vat)}%)`, vatBase * num(s.vat) / 100, `${num(s.vat)}% of ${money(vatBase)}`, 'tax');
   if (s.dest === 'BD') { add('ait', 'Advance Income Tax (AIT)', cv * num(s.ait) / 100, `${num(s.ait)}% of customs value, usually creditable against income tax`, 'tax'); }
   add('other', 'Other (storage, demurrage, inspection, certificates)', num(s.otherCost), 'Your estimate', 'dest');
   return L;

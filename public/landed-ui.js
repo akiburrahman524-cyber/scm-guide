@@ -1,17 +1,28 @@
-const S = { product: 'Example product', originCountry: 'China', dest: 'MY', incoterm: 'FOB', mode: 'sea-fcl', qty: 1000, price: 5, cartons: 100, l: 50, w: 40, h: 30, kg: 12, items: 1000, containers: 1, rate: 2500, originCost: 0, insPct: 0.3, duty: 10, excise: 0, rd: 0, sd: 0, ait: 5, vat: 10, euCountry: 'Germany', euLow: 'no', thc: 300, broker: 150, inland: 400, otherCost: 0, dutyOther: 0, fx: '' };
+const S = { product: 'Example product', originCountry: 'China', dest: 'MY', incoterm: 'FOB', mode: 'sea-fcl', qty: 1000, price: 5, cartons: 100, l: 50, w: 40, h: 30, kg: 12, items: 1000, containers: 1, rate: 2500, originCost: 0, insPct: 0.3, duty: 10, excise: 0, rd: 0, sd: 0, sws: 10, xduty: 0, ait: 5, vat: 10, euCountry: 'Germany', euLow: 'no', thc: 300, broker: 150, inland: 400, otherCost: 0, dutyOther: 0, fx: '' };
 let OVER = {}; let CUSTOM = [];
 const FIELDS = [
- ['product','Product','t'],['originCountry','Origin country','t'],['dest','Destination','sel',[['MY','Malaysia'],['BD','Bangladesh'],['EU','European Union'],['XX','Other country']]],
+ ['product','Product','t'],['originCountry','Origin country','t'],['dest','Destination','sel',[['MY','Malaysia'],['BD','Bangladesh'],['EU','European Union'],['GB','United Kingdom'],['SG','Singapore'],['AE','United Arab Emirates'],['IN','India'],['US','United States'],['XX','Other country']]],
  ['incoterm','Incoterm (who pays what)','sel',Object.keys(INCOTERMS).map(x=>[x,x])],['mode','Transport mode','sel',[['sea-fcl','Sea, full container (FCL)'],['sea-lcl','Sea, shared (LCL)'],['air','Air freight'],['road','Road / courier (per kg)']]],
  ['qty','Quantity (units)'],['price','Unit price (same currency for all amounts)'],['cartons','Number of cartons'],['l','Carton length (cm)'],['w','Carton width (cm)'],['h','Carton height (cm)'],['kg','Carton weight (kg)'],
  ['containers','Containers (FCL only)'],['rate','Freight rate: per container (FCL), per CBM or tonne (LCL), per kg (air/road). Your own rate, example shown.'],
  ['originCost','Origin charges (if buyer pays)'],['insPct','Insurance % (example)'],['duty','Import duty % (by HS code)'],
  ['excise','Excise % (Malaysia)','n','MY'],['rd','Regulatory duty % (Bangladesh)','n','BD'],['sd','Supplementary duty % (Bangladesh)','n','BD'],['ait','Advance income tax % (Bangladesh)','n','BD'],
- ['euCountry','EU country (sets standard VAT)','sel',Object.keys(EU_VAT).map(x=>[x,x]),'EU'],['euLow','Low-value B2C parcel (EUR 3 + EUR 2 per item)?','sel',[['no','No'],['yes','Yes']],'EU'],['items','Items in parcel (for per-item EU fees)','n','EU'],
+ ['sws','Social Welfare Surcharge % of BCD (India)','n','IN'],['xduty','Additional tariffs % (US, by origin)','n','US'],['euCountry','EU country (sets standard VAT)','sel',Object.keys(EU_VAT).map(x=>[x,x]),'EU'],['euLow','Low-value B2C parcel (EUR 3 + EUR 2 per item)?','sel',[['no','No'],['yes','Yes']],'EU'],['items','Items in parcel (for per-item EU fees)','n','EU'],
  ['vat','VAT / sales tax / GST %'],['thc','Port, terminal and D/O fees at destination'],['broker','Customs broker fee'],['inland','Inland delivery'],['otherCost','Other costs'],['fx','Optional: exchange rate to local currency (multiplier)'],
 ];
+let HS=null;
+async function hsFind(q){ if(!HS){ try{ HS=await (await fetch('/hs.json')).json(); }catch(e){ HS=[]; } }
+ const w=q.toLowerCase().split(/\W+/).filter(x=>x.length>2); const box=$('#hsout'); box.replaceChildren();
+ if(!w.length){ return; }
+ const hits=HS.filter(([n,t])=>w.some(x=>t.toLowerCase().includes(x)||String(n)===x)).slice(0,8);
+ if(!hits.length){ box.append(el('div','m','No chapter title matches. Try a broader word such as machinery, plastic, textile, food.')); return; }
+ hits.forEach(([n,t])=>{ const c=el('div','card'); c.append(el('b','','Chapter '+String(n).padStart(2,'0')),el('div','',t)); box.append(c); });
+ box.append(el('div','m','Chapter is only the first 2 digits. Find the full 6 to 10 digit code and the duty rate on the destination customs tariff search (for example Malaysia Customs, Bangladesh Customs, EU TARIC, UK Trade Tariff). Chapter titles: WCO HS 2022.'));
+}
 function initLanded(){
  const f=$('#lform'); f.replaceChildren();
+ const hsBox=el('div'); hsBox.append(el('label','m','Not sure of the HS code? Type a product word to find its HS chapter'));
+ const hi=el('input'); hi.placeholder='e.g. plastic, machine, cotton, battery'; hi.oninput=()=>hsFind(hi.value); hsBox.append(hi, Object.assign(el('div'),{id:'hsout'})); f.append(hsBox);
  FIELDS.forEach(([k,l,t,opts,only])=>{ const w=el('div'); w.dataset.only=(t==='n'||t==='sel')&&typeof opts==='string'?opts:(only||''); if(t==='n'&&typeof opts==='string'){w.dataset.only=opts}
   w.append(el('label','m',l)); let i;
   if(t==='sel'){ i=el('select'); i.style.cssText='width:100%;padding:10px;margin:4px 0 10px;border:1px solid var(--line);border-radius:8px;font:inherit;background:#fff'; opts.forEach(([v,n])=>{const o=el('option','',n);o.value=v;i.append(o)}); }

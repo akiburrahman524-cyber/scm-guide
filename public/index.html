@@ -20,6 +20,8 @@ a{color:#2f6f5f}.warn{background:#f3ece6;border-radius:8px;padding:10px 12px;fon
 <section id="v-ask"><h2>Ask a supply chain question</h2><textarea id="q" rows="3" placeholder="e.g. How do I calculate safety stock? What does FOB mean?"></textarea><button class="p" id="go">Ask</button>
 <div id="out"></div><p class="warn">Answers come from the guide's reference and an AI model. AI can be wrong. Check fees, laws and customs rules with the official source.</p></section>
 <section id="v-news" hidden><h2>Latest supply chain news</h2><p class="m" id="newsmeta"></p><div id="news"></div></section>
+<section id="v-landed" hidden><h2>Landed cost estimator</h2><p class="m">Enter the shipment. Every line can be edited and the total updates at once. This is an estimate, not a customs ruling.</p><div id="lform"></div><h2>Cost lines</h2><div id="llines"></div><div class="card" id="ltotal"></div><div class="row"><button class="p" id="lcsv">Download CSV (Excel)</button><button class="p" id="lprint">Print / save as PDF</button></div><p class="warn" id="lnote"></p></section>
+<section id="v-process" hidden><h2>How global supply chains work</h2><div id="proc"></div></section>
 <section id="v-terms" hidden><h2>Terms and abbreviations</h2><input id="ts" placeholder="Search a term"><div id="terms"></div></section>
 <section id="v-formulas" hidden><h2>Calculators</h2><div id="calcs"></div></section>
 <section id="v-inco" hidden><h2>Incoterms 2020</h2><div id="incos"></div></section>
@@ -29,7 +31,7 @@ a{color:#2f6f5f}.warn{background:#f3ece6;border-radius:8px;padding:10px 12px;fon
 let CODE='',LANG='en',KB=null;const $=s=>document.querySelector(s);
 const el=(t,c,x)=>{const e=document.createElement(t);if(c)e.className=c;if(x!==undefined)e.textContent=x;return e};
 const api=(p,o={})=>fetch(p,{...o,headers:{...(o.headers||{}),'x-access-code':CODE,'content-type':'application/json'}});
-const tabs=[['ask','Ask'],['news','News'],['terms','Terms'],['formulas','Formulas'],['inco','Incoterms'],['learn','Learn']];
+const tabs=[['ask','Ask'],['news','News'],['landed','Landed cost'],['process','Process'],['terms','Terms'],['formulas','Formulas'],['inco','Incoterms'],['learn','Learn']];
 function show(k){tabs.forEach(([x])=>$('#v-'+x).hidden=x!==k);[...$('#nav').children].forEach(b=>b.classList.toggle('on',b.dataset.k===k));if(k==='news')loadNews();}
 tabs.forEach(([k,l])=>{const b=el('button','',l);b.dataset.k=k;b.onclick=()=>show(k);$('#nav').append(b)});
 document.querySelectorAll('#langrow button').forEach(b=>b.onclick=()=>{LANG=b.dataset.l;document.querySelectorAll('#langrow button').forEach(x=>x.classList.toggle('on',x===b));renderTerms()});
@@ -46,7 +48,7 @@ $('#ts').oninput=renderTerms;
 const N=(id,l,v)=>{const w=el('div');w.append(el('label','m',l));const i=el('input');i.value=v;i.inputMode='decimal';i.id=id;w.append(i);return w};
 const g=id=>parseFloat($('#'+id).value);const f=(n,d=2)=>Number.isFinite(n)?n.toLocaleString('en-US',{maximumFractionDigits:d}):'enter numbers';
 function calc(title,form,fields,fn){const c=el('div','card');c.append(el('b','',title),el('div','m',form));fields.forEach(([id,l,v])=>c.append(N(id,l,v)));const r=el('div','');r.style.fontWeight='600';c.append(r);const u=()=>r.textContent='Result: '+fn();c.oninput=u;u();$('#calcs').append(c)}
-function init(){renderTerms();
+function init(){renderTerms();initLanded();initProcess();
  calc('Economic Order Quantity','EOQ = sqrt(2 x D x S / H)',[['d','Annual demand D (units)',12000],['s','Cost per order S',50],['h','Holding cost per unit per year H',2]],()=>f(Math.sqrt(2*g('d')*g('s')/g('h')),1)+' units per order');
  calc('Safety stock and reorder point','SS = Z x sigma_d x sqrt(L); ROP = d x L + SS (demand variability only, fixed lead time)',[['dd','Average daily demand',40],['sd','Std deviation of daily demand',8],['lt','Lead time (days)',9],['z','Z factor (95% = 1.65, 99% = 2.33)',1.65]],()=>{const ss=g('z')*g('sd')*Math.sqrt(g('lt'));return 'safety stock '+f(ss,1)+', reorder point '+f(g('dd')*g('lt')+ss,1)});
  calc('Inventory turnover','Turns = COGS / average inventory; days = 365 / turns',[['cg','Cost of goods sold per year',600000],['iv','Average inventory value',100000]],()=>f(g('cg')/g('iv'),2)+' turns, '+f(365/(g('cg')/g('iv')),0)+' days');
@@ -55,4 +57,4 @@ function init(){renderTerms();
  KB.incoterms.forEach(t=>{const c=el('div','card');c.append(el('b','',t.code+' - '+t.name),el('div','',t.en));$('#incos').append(c)});
  [['SCMDOJO Academy','Free short supply chain courses with completion certificates.'],['Oracle SCM Process Essentials','Free course and free online exam on Oracle learning site.'],['HP LIFE Inventory Management','Free completion certificate. Withdrawn from 7 Dec 2026.'],['SAP Learning: Extended Warehouse Management','Free learning journey, open until 31 Dec 2026.'],['Open University OpenLearn: Supply chain sustainability','Free, Statement of Participation.'],['Odoo Community / ERPNext','Open source ERP to practise inventory, purchasing and sales.'],['Google Sheets / LibreOffice Calc','Free spreadsheets for forecasting, ABC analysis and dashboards.']].forEach(([a,b])=>{const c=el('div','card');c.append(el('b','',a),el('div','m',b));$('#learn').append(c)});
  $('#learn').append(el('p','m','Availability and fees change. Confirm on the provider site before you enrol.'))}
-</script></body></html>
+</script><script src="/landed.js"></script><script src="/landed-ui.js"></script></body></html>

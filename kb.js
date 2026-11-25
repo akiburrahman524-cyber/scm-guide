@@ -45,4 +45,24 @@ const incoterms = [
  { code: 'DPU', name: 'Delivered at Place Unloaded', en: 'Like DAP, and the seller also unloads at the named place.' },
  { code: 'DDP', name: 'Delivered Duty Paid', en: 'Seller bears nearly all cost and risk to the destination, including import duty and clearance.' },
 ];
+
+terms.push(
+ { id: 33, term: 'SCOR model', en: 'Supply Chain Operations Reference model from ASCM. It describes a supply chain as Plan, Source, Make, Deliver, Return (newer versions add Orchestrate and Enable) and gives metrics for each.', bn: 'ASCM-এর Supply Chain Operations Reference মডেল। সাপ্লাই চেইনকে Plan, Source, Make, Deliver, Return ধাপে ভাগ করে এবং প্রতিটির মেট্রিক দেয়।' },
+ { id: 34, term: 'Procure-to-pay (P2P)', en: 'The buying cycle: need identified, requisition, sourcing and supplier selection, PO, goods receipt, invoice matching, payment.', bn: 'কেনার পুরো চক্র: প্রয়োজন চিহ্নিত, রিকুইজিশন, সোর্সিং ও সরবরাহকারী নির্বাচন, PO, মাল গ্রহণ, ইনভয়েস মেলানো, পেমেন্ট।' },
+ { id: 35, term: 'Order-to-cash (O2C)', en: 'The selling cycle: customer order, credit check, picking and shipping, invoicing, collecting payment.', bn: 'বিক্রির চক্র: কাস্টমার অর্ডার, ক্রেডিট যাচাই, পিকিং ও শিপিং, ইনভয়েস, টাকা আদায়।' },
+ { id: 36, term: 'Customs value', en: 'The value customs uses to charge duty. Many countries use the transaction value plus freight and insurance to the border (CIF basis). Some use FOB. Check the importing country rule.', bn: 'শুল্ক নির্ধারণে কাস্টমস যে মূল্য ধরে। অনেক দেশ লেনদেন মূল্য + সীমান্ত পর্যন্ত ফ্রেইট ও বিমা (CIF) ধরে, কেউ কেউ FOB। আমদানিকারক দেশের নিয়ম দেখুন।' },
+ { id: 37, term: 'CIF / FOB value', en: 'CIF = cost, insurance and freight to the destination port. FOB = cost on board at the origin port, excluding main freight and insurance.', bn: 'CIF = গন্তব্য বন্দর পর্যন্ত দাম, বিমা ও ফ্রেইটসহ। FOB = উৎস বন্দরে জাহাজে তোলা পর্যন্ত দাম, মূল ফ্রেইট ও বিমা বাদে।' },
+ { id: 38, term: 'Customs clearance', en: 'The process of declaring imported goods to customs, paying duty and taxes, passing any inspection and getting release of the goods.', bn: 'আমদানি করা পণ্য কাস্টমসে ঘোষণা, শুল্ক-কর পরিশোধ, পরিদর্শন পার হওয়া এবং পণ্য ছাড় পাওয়ার প্রক্রিয়া।' },
+ { id: 39, term: 'Certificate of Origin (CO)', en: 'Document stating where the goods were made. Can allow lower duty under a trade agreement.', bn: 'পণ্য কোথায় তৈরি তা জানানোর নথি। বাণিজ্য চুক্তির আওতায় কম শুল্কের সুযোগ দিতে পারে।' },
+ { id: 40, term: 'Letter of Credit (L/C)', en: 'A bank guarantee that the seller will be paid if the shipping documents meet the agreed terms.', bn: 'ব্যাংকের গ্যারান্টি যে শিপিং নথি শর্ত মিললে বিক্রেতা টাকা পাবে।' },
+ { id: 41, term: 'Chargeable weight', en: 'Weight used to price air freight: the larger of actual weight and volumetric weight (L x W x H in cm / 6000 per carton, in kg, under the common IATA factor).', bn: 'এয়ার ফ্রেইটের দাম ধরার ওজন: প্রকৃত ওজন আর ভলিউমেট্রিক ওজনের (দৈর্ঘ্য x প্রস্থ x উচ্চতা সেমি / ৬০০০) যেটা বেশি।' },
+ { id: 42, term: 'CBM', en: 'Cubic metre: volume of cargo. Carton CBM = L x W x H in cm / 1,000,000. Sea LCL freight is usually priced per CBM or per tonne, whichever is greater.', bn: 'ঘনমিটার: মালের আয়তন। কার্টন CBM = দৈর্ঘ্য x প্রস্থ x উচ্চতা (সেমি) / ১০,০০,০০০। LCL ফ্রেইট সাধারণত CBM বা টন, যেটা বেশি তার হিসেবে।' },
+ { id: 43, term: 'THC (Terminal Handling Charge)', en: 'Fee charged by the port or carrier for moving a container through the terminal.', bn: 'বন্দর বা ক্যারিয়ার টার্মিনালে কন্টেইনার নাড়াচাড়ার জন্য যে ফি নেয়।' },
+ { id: 44, term: 'Customs broker / C&F agent', en: 'A licensed agent who prepares the customs declaration and clears goods for the importer.', bn: 'লাইসেন্সপ্রাপ্ত এজেন্ট যিনি আমদানিকারকের পক্ষে কাস্টমস ঘোষণা তৈরি করে পণ্য ছাড় করান।' },
+ { id: 45, term: 'Demand forecasting', en: 'Estimating future demand from history and signals. Common error measures: MAPE (mean absolute percentage error) and bias.', bn: 'অতীত তথ্য ও সংকেত থেকে ভবিষ্যৎ চাহিদার অনুমান। ত্রুটি মাপার সাধারণ উপায়: MAPE ও বায়াস।' },
+ { id: 46, term: 'Supplier risk', en: 'Chance a supplier fails you through delay, quality, financial trouble, or sanctions. Managed with dual sourcing, audits and safety stock.', bn: 'সরবরাহকারীর কারণে দেরি, মান সমস্যা, আর্থিক সংকট বা নিষেধাজ্ঞায় ক্ষতির সম্ভাবনা। দুই উৎস, অডিট ও সেফটি স্টক দিয়ে সামলানো হয়।' },
+ { id: 47, term: 'Scope 3 emissions', en: 'Indirect emissions in a company value chain, including purchased goods and transport. Most of a typical manufacturer carbon footprint sits here.', bn: 'কোম্পানির ভ্যালু চেইনের পরোক্ষ নির্গমন, যেমন কেনা পণ্য ও পরিবহন। সাধারণ উৎপাদকের কার্বন ফুটপ্রিন্টের বড় অংশ এখানেই।' },
+ { id: 48, term: 'Reverse logistics', en: 'Moving goods backward: returns, repairs, recycling and disposal.', bn: 'পণ্য উল্টো পথে ফেরানো: রিটার্ন, মেরামত, রিসাইকেল ও নিষ্পত্তি।' },
+);
+
 module.exports = { terms, incoterms };

@@ -1,0 +1,58 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>SCM Guide</title>
+<style>
+:root{--ink:#2b1f1f;--mute:#7a6a6a;--line:#e6dddb;--bg:#faf7f5;--acc:#5b8f80}
+*{box-sizing:border-box}body{margin:0;font:16px/1.55 system-ui,sans-serif;color:var(--ink);background:var(--bg)}
+main{max-width:760px;margin:0 auto;padding:20px 16px 60px}h1{font-size:28px;margin:8px 0 2px}h2{font-size:20px;margin:22px 0 8px}
+.sub{color:var(--mute);margin:0 0 14px}nav{display:flex;gap:4px;overflow-x:auto;border-bottom:1px solid var(--line);margin-bottom:12px}
+nav button{background:none;border:0;border-bottom:2px solid transparent;padding:10px 12px;font:inherit;color:var(--mute);cursor:pointer;white-space:nowrap}
+nav button.on{color:var(--ink);border-color:var(--ink)}
+input,textarea{width:100%;font:inherit;padding:10px;border:1px solid var(--line);border-radius:8px;background:#fff;margin:4px 0 10px}
+button.p{background:var(--acc);color:#fff;border:0;border-radius:8px;padding:10px 16px;font:inherit;cursor:pointer}
+.card{background:#fff;border:1px solid var(--line);border-radius:10px;padding:12px 14px;margin:8px 0}.card b{display:block}.m{color:var(--mute);font-size:14px}
+.ans{white-space:pre-wrap}.row{display:flex;gap:8px;flex-wrap:wrap}.row button{border:1px solid var(--line);background:#fff;border-radius:16px;padding:6px 12px;font:inherit;cursor:pointer}.row button.on{background:var(--ink);color:#fff}
+a{color:#2f6f5f}.warn{background:#f3ece6;border-radius:8px;padding:10px 12px;font-size:14px}
+</style></head><body><main>
+<h1>SCM Guide</h1><p class="sub">Free supply chain help: questions, news, terms, formulas, courses. Private preview.</p>
+<div id="gate" class="card"><b>Access code</b><span class="m">This preview is private.</span><input id="code" type="password" autocomplete="off"><button class="p" id="enter">Open</button></div>
+<div id="app" hidden>
+<nav id="nav"></nav>
+<div class="row" id="langrow"><button data-l="en" class="on">English</button><button data-l="bn">বাংলা + English</button></div>
+<section id="v-ask"><h2>Ask a supply chain question</h2><textarea id="q" rows="3" placeholder="e.g. How do I calculate safety stock? What does FOB mean?"></textarea><button class="p" id="go">Ask</button>
+<div id="out"></div><p class="warn">Answers come from the guide's reference and an AI model. AI can be wrong. Check fees, laws and customs rules with the official source.</p></section>
+<section id="v-news" hidden><h2>Latest supply chain news</h2><p class="m" id="newsmeta"></p><div id="news"></div></section>
+<section id="v-terms" hidden><h2>Terms and abbreviations</h2><input id="ts" placeholder="Search a term"><div id="terms"></div></section>
+<section id="v-formulas" hidden><h2>Calculators</h2><div id="calcs"></div></section>
+<section id="v-inco" hidden><h2>Incoterms 2020</h2><div id="incos"></div></section>
+<section id="v-learn" hidden><h2>Free courses and software</h2><div id="learn"></div></section>
+</div></main>
+<script>
+let CODE='',LANG='en',KB=null;const $=s=>document.querySelector(s);
+const el=(t,c,x)=>{const e=document.createElement(t);if(c)e.className=c;if(x!==undefined)e.textContent=x;return e};
+const api=(p,o={})=>fetch(p,{...o,headers:{...(o.headers||{}),'x-access-code':CODE,'content-type':'application/json'}});
+const tabs=[['ask','Ask'],['news','News'],['terms','Terms'],['formulas','Formulas'],['inco','Incoterms'],['learn','Learn']];
+function show(k){tabs.forEach(([x])=>$('#v-'+x).hidden=x!==k);[...$('#nav').children].forEach(b=>b.classList.toggle('on',b.dataset.k===k));if(k==='news')loadNews();}
+tabs.forEach(([k,l])=>{const b=el('button','',l);b.dataset.k=k;b.onclick=()=>show(k);$('#nav').append(b)});
+document.querySelectorAll('#langrow button').forEach(b=>b.onclick=()=>{LANG=b.dataset.l;document.querySelectorAll('#langrow button').forEach(x=>x.classList.toggle('on',x===b));renderTerms()});
+$('#enter').onclick=async()=>{CODE=$('#code').value;const r=await api('/api/kb');if(!r.ok){$('#code').value='';$('#code').placeholder='Wrong code';return}KB=await r.json();$('#gate').hidden=true;$('#app').hidden=false;init();show('ask')};
+$('#code').onkeydown=e=>{if(e.key==='Enter')$('#enter').click()};
+$('#go').onclick=async()=>{const q=$('#q').value.trim();if(!q)return;const o=$('#out');o.replaceChildren(el('p','m','Thinking...'));
+ try{const r=await api('/api/ask',{method:'POST',body:JSON.stringify({question:q,lang:LANG})});const j=await r.json();const c=el('div','card');if(!r.ok){c.append(el('div','',j.error||'Error'))}else{c.append(el('div','ans',j.answer));c.append(el('div','m','Sources: '+(j.sources||[]).join('; ')))}o.replaceChildren(c)}catch(e){o.replaceChildren(el('p','m','Could not reach the server.'))}};
+let newsLoaded=0;async function loadNews(){if(Date.now()-newsLoaded<60000)return;newsLoaded=Date.now();const r=await api('/api/news');const j=await r.json();
+ $('#newsmeta').textContent=(j.items.length?'Fetched '+new Date(j.fetchedAt).toLocaleString()+' from public feeds. Headlines link to the original article.':'No news could be loaded right now.')+(j.errors.length?' Unavailable: '+j.errors.join(', ')+'.':'');
+ const box=$('#news');box.replaceChildren();j.items.forEach(n=>{const c=el('div','card');const a=el('a','',n.title);if(/^https?:\/\//.test(n.link)){a.href=n.link;a.target='_blank';a.rel='noopener noreferrer'}c.append(a,el('div','m',n.source+' · '+new Date(n.date).toLocaleDateString()));box.append(c)})}
+function renderTerms(){if(!KB)return;const s=$('#ts').value.trim().toLowerCase();const box=$('#terms');box.replaceChildren();
+ KB.terms.filter(t=>!s||t.term.toLowerCase().includes(s)||t.en.toLowerCase().includes(s)||t.bn.includes($('#ts').value.trim())).forEach(t=>{const c=el('div','card');c.append(el('b','',t.term));if(LANG==='bn')c.append(el('div','',t.bn));c.append(el('div',LANG==='bn'?'m':'',t.en));box.append(c)})}
+$('#ts').oninput=renderTerms;
+const N=(id,l,v)=>{const w=el('div');w.append(el('label','m',l));const i=el('input');i.value=v;i.inputMode='decimal';i.id=id;w.append(i);return w};
+const g=id=>parseFloat($('#'+id).value);const f=(n,d=2)=>Number.isFinite(n)?n.toLocaleString('en-US',{maximumFractionDigits:d}):'enter numbers';
+function calc(title,form,fields,fn){const c=el('div','card');c.append(el('b','',title),el('div','m',form));fields.forEach(([id,l,v])=>c.append(N(id,l,v)));const r=el('div','');r.style.fontWeight='600';c.append(r);const u=()=>r.textContent='Result: '+fn();c.oninput=u;u();$('#calcs').append(c)}
+function init(){renderTerms();
+ calc('Economic Order Quantity','EOQ = sqrt(2 x D x S / H)',[['d','Annual demand D (units)',12000],['s','Cost per order S',50],['h','Holding cost per unit per year H',2]],()=>f(Math.sqrt(2*g('d')*g('s')/g('h')),1)+' units per order');
+ calc('Safety stock and reorder point','SS = Z x sigma_d x sqrt(L); ROP = d x L + SS (demand variability only, fixed lead time)',[['dd','Average daily demand',40],['sd','Std deviation of daily demand',8],['lt','Lead time (days)',9],['z','Z factor (95% = 1.65, 99% = 2.33)',1.65]],()=>{const ss=g('z')*g('sd')*Math.sqrt(g('lt'));return 'safety stock '+f(ss,1)+', reorder point '+f(g('dd')*g('lt')+ss,1)});
+ calc('Inventory turnover','Turns = COGS / average inventory; days = 365 / turns',[['cg','Cost of goods sold per year',600000],['iv','Average inventory value',100000]],()=>f(g('cg')/g('iv'),2)+' turns, '+f(365/(g('cg')/g('iv')),0)+' days');
+ calc('Cash-to-cash cycle','DIO + DSO - DPO',[['a','Days inventory',60],['b','Days sales outstanding',45],['c','Days payables outstanding',50]],()=>f(g('a')+g('b')-g('c'),0)+' days');
+ calc('Landed cost','Price + freight + insurance + duty/taxes + handling',[['p1','Product price',10000],['p2','Freight',800],['p3','Insurance',50],['p4','Duty and taxes',500],['p5','Other handling',150]],()=>f(g('p1')+g('p2')+g('p3')+g('p4')+g('p5'),2));
+ KB.incoterms.forEach(t=>{const c=el('div','card');c.append(el('b','',t.code+' - '+t.name),el('div','',t.en));$('#incos').append(c)});
+ [['SCMDOJO Academy','Free short supply chain courses with completion certificates.'],['Oracle SCM Process Essentials','Free course and free online exam on Oracle learning site.'],['HP LIFE Inventory Management','Free completion certificate. Withdrawn from 7 Dec 2026.'],['SAP Learning: Extended Warehouse Management','Free learning journey, open until 31 Dec 2026.'],['Open University OpenLearn: Supply chain sustainability','Free, Statement of Participation.'],['Odoo Community / ERPNext','Open source ERP to practise inventory, purchasing and sales.'],['Google Sheets / LibreOffice Calc','Free spreadsheets for forecasting, ABC analysis and dashboards.']].forEach(([a,b])=>{const c=el('div','card');c.append(el('b','',a),el('div','m',b));$('#learn').append(c)});
+ $('#learn').append(el('p','m','Availability and fees change. Confirm on the provider site before you enrol.'))}
+</script></body></html>

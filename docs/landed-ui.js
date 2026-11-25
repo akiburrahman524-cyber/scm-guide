@@ -11,7 +11,7 @@ const FIELDS = [
  ['vat','VAT / sales tax / GST %'],['thc','Port, terminal and D/O fees at destination'],['broker','Customs broker fee'],['inland','Inland delivery'],['otherCost','Other costs'],['fx','Optional: exchange rate to local currency (multiplier)'],
 ];
 let HS=null;
-async function hsFind(q){ if(!HS){ try{ HS=await (await fetch('/hs.json')).json(); }catch(e){ HS=[]; } }
+async function hsFind(q){ if(!HS){ try{ HS=await (await fetch('hs.json')).json(); }catch(e){ HS=[]; } }
  const w=q.toLowerCase().split(/\W+/).filter(x=>x.length>2); const box=$('#hsout'); box.replaceChildren();
  if(!w.length){ return; }
  const hits=HS.filter(([n,t])=>w.some(x=>t.toLowerCase().includes(x)||String(n)===x)).slice(0,8);

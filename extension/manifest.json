@@ -1,0 +1,16 @@
+{
+  "manifest_version": 3,
+  "name": "SCM Guide - Supply Chain Toolkit",
+  "version": "1.0.0",
+  "description": "Free supply chain toolkit: landed cost calculator, HS code lookup with official tariff links, CBM & container fill, freight and C&F helpers, demurrage & detention, A-Z formulas, Incoterms 2020, Bangladesh & Malaysia guides. Bangla + English, dark & light. No ads, no data collection.",
+  "default_locale": "en",
+  "permissions": ["storage"],
+  "action": {
+    "default_popup": "popup.html",
+    "default_icon": { "16": "icons/icon16.png", "32": "icons/icon32.png", "48": "icons/icon48.png", "128": "icons/icon128.png" }
+  },
+  "icons": { "16": "icons/icon16.png", "32": "icons/icon32.png", "48": "icons/icon48.png", "128": "icons/icon128.png" },
+  "browser_specific_settings": {
+    "gecko": { "id": "scm-guide-toolkit@akiburrahman524-cyber.github.io", "strict_min_version": "109.0" }
+  }
+}

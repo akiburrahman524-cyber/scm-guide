@@ -31,7 +31,7 @@ registerTool({
     pl.append(el('div','notebox',t('Always confirm rates and rules at the official source. These are the sites customs brokers actually use.','হার ও নিয়ম সবসময় অফিসিয়াল উৎসে নিশ্চিত করুন। কাস্টমস ব্রোকাররা আসলে এই সাইটগুলোই ব্যবহার করে।')));
     const lg=el('div','grid c2'); lg.style.marginTop='12px';
     OFFICIAL_LINKS.forEach(l=>{ const a=el('a','tool-card'); a.href=l.url; a.target='_blank'; a.rel='noopener noreferrer'; a.style.textDecoration='none';
-      a.innerHTML='<span class="tic">'+icon('external',20)+'</span>'; const tx=el('div'); tx.append(el('b','',t(l.name[0],l.name[1])), el('div','m',l.url.replace(/^https?:\/\//,'')));
+      const tic2=el('span','tic'); tic2.append(iconEl('external',20)); a.append(tic2); const tx=el('div'); tx.append(el('b','',t(l.name[0],l.name[1])), el('div','m',l.url.replace(/^https?:\/\//,'')));
       a.append(tx); lg.append(a); });
     pl.append(lg);
     [pg,pf,pl].forEach(p=>wrap.append(p));

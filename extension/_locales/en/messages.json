@@ -1,4 +1,10 @@
 {
-  "appName": { "message": "SCM Guide - Supply Chain Toolkit", "description": "Extension name" },
-  "appDesc": { "message": "Free supply chain toolkit: landed cost calculator, HS code lookup with official tariff links, CBM & container fill, freight and C&F helpers, demurrage & detention, A-Z formulas, Incoterms 2020, Bangladesh & Malaysia guides. Bangla + English, dark & light. No ads, no data collection.", "description": "Extension description" }
+  "appName": {
+    "message": "SCM Guide - Supply Chain Toolkit",
+    "description": "Extension name"
+  },
+  "appDesc": {
+    "message": "Free supply chain toolkit: landed cost calculator, HS code lookup, CBM & container fill, freight helpers, demurrage, A-Z formulas, Incoterms 2020, Bangla + English, dark & light. No ads, no data collection.",
+    "description": "Extension description"
+  }
 }

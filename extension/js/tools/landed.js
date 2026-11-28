@@ -155,7 +155,7 @@ registerTool({
     const btns=el('div','btnrow');
     const addB=el('button','btn g',t('+ Add my own cost line','+ নিজের খরচের লাইন যোগ করুন'));
     addB.onclick=()=>{ CUSTOM.push({id:'c'+Date.now(),label:t('My cost','আমার খরচ'),amount:0,note:t('Added by you','আপনি যোগ করেছেন'),group:'custom'}); store.set('landed_custom',CUSTOM); recalc(); };
-    const csvB=el('button','btn p'); csvB.innerHTML=icon('download',16)+' '+t('Download CSV (Excel)','CSV ডাউনলোড (Excel)'); csvB.onclick=downloadCSV;
+    const csvB=el('button','btn p'); csvB.append(iconEl('download',16), document.createTextNode(' '+t('Download CSV (Excel)','CSV ডাউনলোড (Excel)'))); csvB.onclick=downloadCSV;
     const prB=el('button','btn g',t('Print / save PDF','প্রিন্ট / PDF সেভ')); prB.onclick=()=>window.print();
     const clrB=el('button','btn g',t('Reset edits','এডিট রিসেট')); clrB.onclick=async()=>{ OVER={}; CUSTOM=[]; await store.set('landed_custom',[]); recalc(); };
     btns.append(addB,csvB,prB,clrB);

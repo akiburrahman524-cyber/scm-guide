@@ -62,3 +62,16 @@ const ICONS = {
   layers: '<path d="m12 2 9 5-9 5-9-5 9-5Z"/><path d="m3 12 9 5 9-5"/><path d="m3 17 9 5 9-5"/>'
 };
 const icon = (name, size) => `<svg class="ic" width="${size || 20}" height="${size || 20}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICONS[name] || ICONS.box}</svg>`;
+
+/* DOM-built inline SVG (avoids innerHTML) */
+const iconEl = (name, size) => {
+  const ns = 'http://www.w3.org/2000/svg';
+  const svg = document.createElementNS(ns, 'svg');
+  svg.setAttribute('class', 'ic'); svg.setAttribute('width', size || 20); svg.setAttribute('height', size || 20);
+  svg.setAttribute('viewBox', '0 0 24 24'); svg.setAttribute('fill', 'none'); svg.setAttribute('stroke', 'currentColor');
+  svg.setAttribute('stroke-width', '1.8'); svg.setAttribute('stroke-linecap', 'round'); svg.setAttribute('stroke-linejoin', 'round');
+  svg.setAttribute('aria-hidden', 'true');
+  const doc = new DOMParser().parseFromString('<svg xmlns="' + ns + '">' + (ICONS[name] || ICONS.box) + '</svg>', 'image/svg+xml');
+  [...doc.documentElement.childNodes].forEach((n) => svg.appendChild(document.importNode(n, true)));
+  return svg;
+};

@@ -7,7 +7,7 @@ registerTool({
   blurb:['48 working supply chain terms explained in Bangla and English.','৪৮টি কার্যকর সাপ্লাই চেইন শব্দের বাংলা ও ইংরেজি ব্যাখ্যা।'],
   async render(root){
     const wrap=el('div');
-    const sb=el('div','searchbig'); sb.innerHTML=icon('search',18);
+    const sb=el('div','searchbig'); sb.append(iconEl('search',18));
     const inp=el('input'); inp.placeholder=t('Search: PO, MOQ, bill of lading...','খুঁজুন: PO, MOQ, bill of lading...');
     sb.append(inp); wrap.append(sb);
     const out=el('div'); out.style.marginTop='14px'; wrap.append(out);

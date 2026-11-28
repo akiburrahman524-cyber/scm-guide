@@ -2,20 +2,20 @@
 'use strict';
 (async function () {
   await initLang(); await initTheme();
-  $('#sic').innerHTML = icon('search', 16);
+  $('#sic').replaceChildren(iconEl('search', 16));
   function paint() {
     $('#popSub').textContent = t('Supply chain toolkit', 'সাপ্লাই চেইন টুলকিট');
     $('#pq').placeholder = t('HS code or term: "shoes", "8517", "MOQ"...', 'এইচএস কোড বা শব্দ: "shoes", "8517", "MOQ"...');
     $('#popLang').textContent = LANG === 'en' ? 'বাং' : 'EN';
-    $('#popTheme').innerHTML = THEME === 'light' ? icon('moon', 14) : icon('sun', 14);
+    $('#popTheme').replaceChildren(THEME === 'light' ? iconEl('moon', 14) : iconEl('sun', 14));
     $('#openFull').textContent = t('Open full toolkit', 'পুরো টুলকিট খুলুন');
     $('#siteLink').textContent = t('SCM Guide site', 'SCM Guide সাইট');
     $('#popDisc').textContent = t('Free forever. No ads. Nothing leaves your device.', 'চিরকাল ফ্রি। বিজ্ঞাপন নেই। কিছুই আপনার ডিভাইস ছাড়ে না।');
     const quick = [['landed', 'calculator'], ['hs', 'barcode'], ['cbm', 'box'], ['formulas', 'sigma']];
     $('#quick').replaceChildren(...quick.map(([id, ic]) => {
-      const b = el('button'); b.innerHTML = icon(ic, 15) + ' <span></span>';
+      const b = el('button');
       const names = { landed: ['Landed cost', 'ল্যান্ডেড কস্ট'], hs: ['HS codes', 'এইচএস কোড'], cbm: ['CBM', 'সিবিএম'], formulas: ['Formulas', 'ফর্মুলা'] };
-      b.lastChild.textContent = t(names[id][0], names[id][1]);
+      b.append(iconEl(ic, 15), el('span', '', t(names[id][0], names[id][1])));
       b.onclick = () => openFull(id);
       return b;
     }));
@@ -37,7 +37,7 @@
     });
     TERMS.forEach((x) => { if (x.term.toLowerCase().includes(q) || x.en.toLowerCase().includes(q)) hits.push({ t: x.term, s: x.en.slice(0, 90) + (x.en.length > 90 ? '...' : ''), go: 'glossary' }); });
     hits.slice(0, 6).forEach((h) => {
-      const d = el('div', 'hit'); d.innerHTML = icon(h.go === 'hs' ? 'barcode' : 'book', 16);
+      const d = el('div', 'hit'); d.append(iconEl(h.go === 'hs' ? 'barcode' : 'book', 16));
       const tx = el('div'); tx.append(el('b', '', h.t), el('div', 'm', h.s)); d.append(tx);
       d.onclick = () => openFull(h.go);
       box.append(d);

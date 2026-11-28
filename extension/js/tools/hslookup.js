@@ -8,10 +8,10 @@ registerTool({
   blurb:['Search 5,600+ HS 2022 codes, see the chapter, and open official US / UK / EU / BD / MY tariffs.','৫,৬০০+ HS 2022 কোড খুঁজুন, চ্যাপ্টার দেখুন, অফিসিয়াল US / UK / EU / BD / MY ট্যারিফ খুলুন।'],
   async render(root){
     const wrap=el('div');
-    const sb=el('div','searchbig'); sb.innerHTML=icon('search',18);
+    const sb=el('div','searchbig'); sb.append(iconEl('search',18));
     const inp=el('input'); inp.placeholder=t('Search a product or code: "cotton shirt", "led", "8517"...','পণ্য বা কোড খুঁজুন: "cotton shirt", "led", "8517"...');
     sb.append(inp); wrap.append(sb);
-    const note=el('div','notebox'); note.innerHTML = esc(t('HS 2022 (WCO) 6-digit codes - the worldwide base. Countries extend them to 8-10 digits. Data: UN Comtrade / datasets-harmonized-system (public domain). Duty rates are NOT in this data - open the official tariff for your destination.','HS 2022 (WCO) ৬ সংখ্যার কোড - বিশ্বব্যাপী ভিত্তি। দেশগুলো ৮-১০ সংখ্যা পর্যন্ত বাড়ায়। তথ্য: UN Comtrade / datasets-harmonized-system (পাবলিক ডোমেইন)। শুল্ক হার এই ডেটায় নেই - গন্তব্যের অফিসিয়াল ট্যারিফ দেখুন।'));
+    const note=el('div','notebox'); note.textContent = t('HS 2022 (WCO) 6-digit codes - the worldwide base. Countries extend them to 8-10 digits. Data: UN Comtrade / datasets-harmonized-system (public domain). Duty rates are NOT in this data - open the official tariff for your destination.','HS 2022 (WCO) ৬ সংখ্যার কোড - বিশ্বব্যাপী ভিত্তি। দেশগুলো ৮-১০ সংখ্যা পর্যন্ত বাড়ায়। তথ্য: UN Comtrade / datasets-harmonized-system (পাবলিক ডোমেইন)। শুল্ক হার এই ডেটায় নেই - গন্তব্যের অফিসিয়াল ট্যারিফ দেখুন।');
     wrap.append(note);
     const out=el('div'); wrap.append(out);
     const chapterOf = (code)=>HS_CHAPTERS.find(c=>String(c[0]).padStart(2,'0')===code.slice(0,2));

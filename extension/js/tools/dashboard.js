@@ -23,7 +23,7 @@ registerTool({
     const grid=el('div','grid c3');
     TOOLS.filter(x=>x.id!=='dashboard').forEach(x=>{
       const c=el('div','tool-card');
-      c.innerHTML='<span class="tic">'+icon(x.icon,22)+'</span>';
+      const tic=el('span','tic'); tic.append(iconEl(x.icon,22)); c.append(tic);
       const tx=el('div'); tx.append(el('b','',t(x.title[0],x.title[1])), el('div','m',t(x.blurb[0],x.blurb[1])));
       c.append(tx); c.onclick=()=>location.hash='#/'+x.id;
       grid.append(c);
